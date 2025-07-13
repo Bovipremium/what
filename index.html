@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Atendimento WhatsApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .container {
+      padding: 30px 20px;
+    }
+    .container h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .container p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .button-ok {
+      background-color: #25d366;
+      color: white;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+    }
+    .button-ok:hover {
+      background-color: #1ebd5b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Fale com nossa equipe</h1>
+    <p>Estamos prontos para te atender via WhatsApp.</p>
+    <button class="button-ok" onclick="startWhatsApp()">OK</button>
+  </div>
+
+  <script>
+    function startWhatsApp() {
+      const msg = "Olá, gostaria de saber mais informações!";
+      const phone = "5562992053928";
+      const link = "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg);
+      window.open(link, "_blank");
+    }
+  </script>
+</body>
+</html>
