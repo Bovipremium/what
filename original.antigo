@@ -51,14 +51,15 @@
 </head>
 <body>
   <div class="overlay">
-    <h1>Result Plus Carrapato, Berne, Verme e Mosca</h1>
-    <p class="sub">Clique abaixo para ver o preço.</p>
-
     <form id="leadForm">
       <!-- campo opcional -->
       <div class="campo-telefone">
-        <input type="tel" id="telefone" name="telefone" placeholder="Deixe seu número (62) 9 9999-9999 - opcional">
+        <input type="tel" id="telefone" name="telefone" placeholder="Seu número (00) 0 0000-0000 - opcional">
       </div>
+
+      <h1>Result Plus Carrapato, Berne, Verme e Mosca</h1>
+      <p class="sub">Clique abaixo para ver o preço.</p>
+
       <button type="submit" class="btn">SOBRE O PRODUTO</button>
     </form>
 
@@ -72,13 +73,11 @@
 
     const qs = new URLSearchParams(window.location.search);
 
-    // Pré-preenche se já tiver salvo
     function prefill() {
       const telLS  = localStorage.getItem("lead_telefone");
       if(telLS) document.getElementById("telefone").value = telLS;
     }
 
-    // Envio para Sheets
     async function saveLead(payload){
       try{
         await fetch(WEB_APP_URL, {
@@ -90,19 +89,15 @@
       }catch(e){ console.warn("Falha ao salvar:", e); }
     }
 
-    // Abrir WhatsApp
     function openWhatsApp(){
       const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(FIXED_MESSAGE)}`;
       window.location.href = url;
     }
 
-    // Clique no botão
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const telefone = document.getElementById("telefone").value.trim();
-
-      // Salva no navegador
       if(telefone) localStorage.setItem("lead_telefone", telefone);
 
       const lead = {
