@@ -54,7 +54,7 @@ button.btn{
   <form id="leadForm">
     <!-- campo opcional acima do título -->
     <div class="campo-telefone">
-      <input type="tel" id="telefone" name="telefone" placeholder="Seu número — opcional" maxlength="20">
+      <input type="text" id="telefone" name="telefone" placeholder="Seu número — opcional" maxlength="20">
     </div>
 
     <h1>Result Plus Carrapato, Berne, Verme e Mosca</h1>
