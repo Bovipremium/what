@@ -72,7 +72,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMR
 const FIXED_MESSAGE = "Olá, Gostaria de saber mais informações!";
 const qs = new URLSearchParams(window.location.search);
 
-// Pré-preenche se houver número salvo, mas não adiciona número fictício
+// Pré-preenche se houver número salvo, sem número fictício
 function prefill() {
   const telLS = localStorage.getItem("lead_telefone");
   if(telLS) document.getElementById("telefone").value = telLS;
@@ -99,13 +99,34 @@ document.getElementById("leadForm").addEventListener("submit", async e=>{
   const telefone = document.getElementById("telefone").value.trim();
   if(telefone) localStorage.setItem("lead_telefone", telefone);
 
+  // Função para obter localização
+  function getLocation() {
+    return new Promise((resolve) => {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          }),
+          err => resolve({ latitude: '', longitude: '' }) // caso negue
+        );
+      } else {
+        resolve({ latitude: '', longitude: '' });
+      }
+    });
+  }
+
+  const location = await getLocation();
+
   const lead = {
     telefone: telefone || "",
     utm_source: qs.get("utm_source") || "",
     utm_medium: qs.get("utm_medium") || "",
     utm_campaign: qs.get("utm_campaign") || "",
     page: location.href,
-    ts: new Date().toISOString()
+    ts: new Date().toISOString(),
+    latitude: location.latitude,
+    longitude: location.longitude
   };
 
   saveLead(lead);
