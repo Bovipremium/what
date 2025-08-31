@@ -39,9 +39,20 @@
       transition: transform .2s ease, filter .2s ease;
     }
     .btn:hover{ transform: translateY(-1px); filter:brightness(1.05); }
-    .note{font-size:.95rem; margin-top:12px; opacity:.95}
-    /* Inputs ficam totalmente escondidos */
-    form input{ display:none !important; }
+    .note{font-size:.9rem; margin-top:12px; opacity:.9}
+
+    /* Campo opcional */
+    .campo-telefone{
+      margin-bottom: 18px;
+    }
+    .campo-telefone input{
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -50,9 +61,10 @@
     <p class="sub">Clique abaixo para ver o preço.</p>
 
     <form id="leadForm">
-      <!-- valores pré-preenchidos -->
-      <input type="text" id="nome" name="nome" value="Cliente">
-      <input type="tel" id="telefone" name="telefone" value="62999999999">
+      <!-- campo opcional -->
+      <div class="campo-telefone">
+        <input type="tel" id="telefone" name="telefone" placeholder="Deixe seu número (62) 9 9999-9999 - opcional">
+      </div>
       <button type="submit" class="btn">SOBRE O PRODUTO</button>
     </form>
 
@@ -64,25 +76,18 @@
     const WHATSAPP_PHONE = "5562993463712"; 
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMRa_-9jCoAjUezH42jKK-WOKLD0GLl5hSupkZAbFLxRpCetYQJEA/exec";
 
-    // Template da mensagem
     const MESSAGE_TEMPLATE = (nome, telefone) => 
-      `Olá, meu nome é ${nome} (${telefone}). Gostaria de saber mais informações!`;
+      `Olá, Gostaria de saber mais informações!`;
 
-    const $ = (sel) => document.querySelector(sel);
     const qs = new URLSearchParams(window.location.search);
 
-    // Pré-preenchimento automático
+    // Pré-preenchimento do telefone se já existir no localStorage
     function prefill() {
-      const nomeFromUrl = qs.get("nome");
-      const telFromUrl  = qs.get("telefone");
-      const nomeLS = localStorage.getItem("lead_nome");
       const telLS  = localStorage.getItem("lead_telefone");
-
-      $("#nome").value = nomeFromUrl || nomeLS || "Cliente";
-      $("#telefone").value = telFromUrl || telLS || "62999999999";
+      if(telLS) document.getElementById("telefone").value = telLS;
     }
 
-    // Envio ao Google Sheets
+    // Envio para Sheets
     async function saveLead(payload){
       try{
         await fetch(WEB_APP_URL, {
@@ -91,9 +96,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-      }catch(e){
-        console.warn("Falha ao salvar no Sheets:", e);
-      }
+      }catch(e){ console.warn("Falha ao salvar:", e); }
     }
 
     // Abrir WhatsApp
@@ -107,32 +110,29 @@
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const nome = $("#nome").value.trim() || "Cliente";
-      const telefone = $("#telefone").value.trim() || "62999999999";
+      const telefone = document.getElementById("telefone").value.trim();
+      const nome = "Cliente";
 
-      // Salva localmente
-      localStorage.setItem("lead_nome", nome);
-      localStorage.setItem("lead_telefone", telefone);
+      // fallback se vazio
+      const finalTelefone = telefone || "";
 
-      // Monta payload
+      // Salva no navegador
+      localStorage.setItem("lead_telefone", finalTelefone);
+
       const lead = {
         nome,
-        telefone,
+        telefone: finalTelefone,
         utm_source: qs.get("utm_source") || "",
         utm_medium: qs.get("utm_medium") || "",
         utm_campaign: qs.get("utm_campaign") || "",
-        referrer: document.referrer || "",
-        userAgent: navigator.userAgent || "",
         page: location.href,
         ts: new Date().toISOString()
       };
 
-      // Salva + abre WhatsApp
       saveLead(lead);
-      openWhatsApp(nome, telefone);
+      openWhatsApp(nome, finalTelefone);
     });
 
-    // Executa pré-preenchimento
     prefill();
   </script>
 </body>
