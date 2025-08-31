@@ -19,7 +19,7 @@
       justify-content:center;
       text-align:center;
       color:#fff;
-      background:#0d1117 url('.result foto.png') center/cover no-repeat fixed;
+      background:#0d1117 url('result-foto.png') center/cover no-repeat fixed;
     }
     .overlay{
       background: var(--overlay);
@@ -62,7 +62,7 @@
     const WHATSAPP_PHONE = "5562993463712"; // número do WhatsApp
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMRa_-9jCoAjUezH42jKK-WOKLD0GLl5hSupkZAbFLxRpCetYQJEA/exec";
     const MESSAGE_TEMPLATE = (nome, telefone) => 
-      `Olá, meu nome é ${nome} e meu telefone é ${telefone}. Esses dados estão corretos? Gostaria de saber mais informações!`;
+      `Olá, Gostaria de saber mais informações!`;
 
     const $ = (sel) => document.querySelector(sel);
     const qs = new URLSearchParams(window.location.search);
@@ -120,7 +120,7 @@
         ts: new Date().toISOString()
       };
 
-      await saveLead(lead);
+      saveLead(lead);
       openWhatsApp(nome, telefone);
     });
 
