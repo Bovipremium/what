@@ -52,7 +52,7 @@ button.btn{
 <body>
 <div class="overlay">
   <form id="leadForm">
-    <!-- campo opcional acima do título -->
+    <!-- Campo opcional acima do título -->
     <div class="campo-telefone">
       <input type="text" id="telefone" name="telefone" placeholder="Seu número — opcional" maxlength="20">
     </div>
@@ -72,7 +72,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMR
 const FIXED_MESSAGE = "Olá, Gostaria de saber mais informações!";
 const qs = new URLSearchParams(window.location.search);
 
-// pré-preenche localStorage se houver
+// Pré-preenche se houver número salvo, mas não adiciona número fictício
 function prefill() {
   const telLS = localStorage.getItem("lead_telefone");
   if(telLS) document.getElementById("telefone").value = telLS;
