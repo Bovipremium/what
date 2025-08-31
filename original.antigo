@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Result Plus - Ver Preço</title>
   <style>
-    :root{
-      --whatsapp:#25D366;
-      --overlay: rgba(0,0,0,.6);
-    }
     body{
       margin:0;
       font-family: Arial, Helvetica, sans-serif;
@@ -21,17 +17,17 @@
       background:#0d1117 url('result-foto.png') center/cover no-repeat fixed;
     }
     .overlay{
-      background: var(--overlay);
+      background: rgba(0,0,0,.65);
       padding: 42px 30px;
       border-radius: 20px;
       width:min(92vw, 520px);
       box-shadow: 0 20px 60px rgba(0,0,0,.35);
     }
-    h1{font-size:clamp(1.4rem,3vw,2rem); margin: 0 0 14px}
+    h1{font-size:1.6rem; margin: 0 0 14px}
     p.sub{opacity:.9; margin: 0 0 22px}
     button.btn{
       display:inline-block;
-      background: var(--whatsapp);
+      background: #25D366;
       color:#fff; font-weight:700;
       padding:15px 26px; border-radius:40px;
       border:0; cursor:pointer;
@@ -40,14 +36,12 @@
     }
     .btn:hover{ transform: translateY(-1px); filter:brightness(1.05); }
     .note{font-size:.9rem; margin-top:12px; opacity:.9}
-
-    /* Campo opcional */
     .campo-telefone{
       margin-bottom: 18px;
     }
     .campo-telefone input{
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 14px;
       border-radius: 8px;
       border: none;
       font-size: 1rem;
@@ -72,16 +66,13 @@
   </div>
 
   <script>
-    // CONFIGURAÇÕES
     const WHATSAPP_PHONE = "5562993463712"; 
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMRa_-9jCoAjUezH42jKK-WOKLD0GLl5hSupkZAbFLxRpCetYQJEA/exec";
-
-    const MESSAGE_TEMPLATE = (nome, telefone) => 
-      `Olá, Gostaria de saber mais informações!`;
+    const FIXED_MESSAGE = "Olá, Gostaria de saber mais informações!";
 
     const qs = new URLSearchParams(window.location.search);
 
-    // Pré-preenchimento do telefone se já existir no localStorage
+    // Pré-preenche se já tiver salvo
     function prefill() {
       const telLS  = localStorage.getItem("lead_telefone");
       if(telLS) document.getElementById("telefone").value = telLS;
@@ -100,9 +91,8 @@
     }
 
     // Abrir WhatsApp
-    function openWhatsApp(nome, telefone){
-      const msg = MESSAGE_TEMPLATE(nome, telefone);
-      const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`;
+    function openWhatsApp(){
+      const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(FIXED_MESSAGE)}`;
       window.location.href = url;
     }
 
@@ -111,17 +101,12 @@
       e.preventDefault();
 
       const telefone = document.getElementById("telefone").value.trim();
-      const nome = "Cliente";
-
-      // fallback se vazio
-      const finalTelefone = telefone || "";
 
       // Salva no navegador
-      localStorage.setItem("lead_telefone", finalTelefone);
+      if(telefone) localStorage.setItem("lead_telefone", telefone);
 
       const lead = {
-        nome,
-        telefone: finalTelefone,
+        telefone: telefone || "",
         utm_source: qs.get("utm_source") || "",
         utm_medium: qs.get("utm_medium") || "",
         utm_campaign: qs.get("utm_campaign") || "",
@@ -130,7 +115,7 @@
       };
 
       saveLead(lead);
-      openWhatsApp(nome, finalTelefone);
+      openWhatsApp();
     });
 
     prefill();
