@@ -72,12 +72,13 @@ const WEB_APP_URL = "COLE_AQUI_SUA_URL_DO_WEB_APP";
 const FIXED_MESSAGE = "Olá, Gostaria de saber mais informações!";
 const qs = new URLSearchParams(window.location.search);
 
-// Pré-preenche se houver número salvo, sem número fictício
+// Pré-preenche se houver número salvo
 function prefill() {
   const telLS = localStorage.getItem("lead_telefone");
   if(telLS) document.getElementById("telefone").value = telLS;
 }
 
+// Função para salvar no Google Sheets
 async function saveLead(payload){
   try{
     await fetch(WEB_APP_URL, {
@@ -89,17 +90,19 @@ async function saveLead(payload){
   } catch(e){ console.warn("Falha ao salvar:", e); }
 }
 
+// Abre WhatsApp
 function openWhatsApp(){
   const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(FIXED_MESSAGE)}`;
   window.location.href = url;
 }
 
+// Evento ao clicar no botão
 document.getElementById("leadForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const telefone = document.getElementById("telefone").value.trim();
   if(telefone) localStorage.setItem("lead_telefone", telefone);
 
-  // Função para obter localização
+  // Obter localização
   function getLocation() {
     return new Promise((resolve) => {
       if(navigator.geolocation){
@@ -108,7 +111,7 @@ document.getElementById("leadForm").addEventListener("submit", async e=>{
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude
           }),
-          err => resolve({ latitude: '', longitude: '' }) // caso negue
+          err => resolve({ latitude: '', longitude: '' })
         );
       } else {
         resolve({ latitude: '', longitude: '' });
@@ -119,10 +122,13 @@ document.getElementById("leadForm").addEventListener("submit", async e=>{
   const location = await getLocation();
 
   const lead = {
+    nome: "Cliente",
     telefone: telefone || "",
     utm_source: qs.get("utm_source") || "",
     utm_medium: qs.get("utm_medium") || "",
     utm_campaign: qs.get("utm_campaign") || "",
+    referrer: document.referrer || "",
+    userAgent: navigator.userAgent || "",
     page: location.href,
     ts: new Date().toISOString(),
     latitude: location.latitude,
