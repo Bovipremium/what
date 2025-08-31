@@ -1,54 +1,139 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Conectando ao WhatsApp...</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Result Plus - Ver Preço</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      text-align: center;
-      padding-top: 100px;
+    :root{
+      --whatsapp:#25D366;
+      --overlay: rgba(0,0,0,.6);
     }
-
-    #mensagem {
-      font-size: 20px;
-      color: #333;
-      margin-bottom: 30px;
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#fff;
+      background:#0d1117 url('result-foto.png') center/cover no-repeat fixed;
     }
-
-    #btnManual {
-      display: none;
-      background-color: #25d366;
-      color: white;
-      padding: 15px 25px;
-      text-decoration: none;
-      border-radius: 10px;
-      font-size: 18px;
+    .overlay{
+      background: var(--overlay);
+      padding: 42px 30px;
+      border-radius: 20px;
+      width:min(92vw, 520px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
     }
+    h1{font-size:clamp(1.4rem,3vw,2rem); margin: 0 0 14px}
+    p.sub{opacity:.9; margin: 0 0 22px}
+    button.btn{
+      display:inline-block;
+      background: var(--whatsapp);
+      color:#fff; font-weight:700;
+      padding:15px 26px; border-radius:40px;
+      border:0; cursor:pointer;
+      font-size:1.1rem; box-shadow:0 8px 24px rgba(0,0,0,.35);
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); filter:brightness(1.05); }
+    .note{font-size:.95rem; margin-top:12px; opacity:.95}
+    /* Inputs ficam totalmente escondidos */
+    form input{ display:none !important; }
   </style>
 </head>
 <body>
-  <div id="mensagem">Conectando você ao nosso atendimento via WhatsApp...</div>
+  <div class="overlay">
+    <h1>Result Plus Carrapato, Berne, Verme e Mosca</h1>
+    <p class="sub">Clique abaixo para ver o preço.</p>
 
-  <a id="btnManual" href="https://wa.me/5562992101712?text=Olá%2C+quero+mais+informações" target="_blank" rel="noopener noreferrer">
-    Clique aqui se não for redirecionado
-  </a>
+    <form id="leadForm">
+      <!-- valores pré-preenchidos -->
+      <input type="text" id="nome" name="nome" value="Cliente">
+      <input type="tel" id="telefone" name="telefone" value="62999999999">
+      <button type="submit" class="btn">SOBRE O PRODUTO</button>
+    </form>
+
+    <div class="note">Ao continuar, você concorda em ser contatado sobre esta oferta.</div>
+  </div>
 
   <script>
-    window.onload = function () {
-      const link = "https://wa.me/5562992101712?text=Olá%2C+quero+mais+informações";
+    // CONFIGURAÇÕES
+    const WHATSAPP_PHONE = "5562993463712"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMRa_-9jCoAjUezH42jKK-WOKLD0GLl5hSupkZAbFLxRpCetYQJEA/exec";
 
-      // Redirecionamento automático (funciona na maioria dos casos)
-      setTimeout(() => {
-        window.location.href = link;
-      }, 1500);
+    // Template da mensagem
+    const MESSAGE_TEMPLATE = (nome, telefone) => 
+      `Olá, meu nome é ${nome} (${telefone}). Gostaria de saber mais informações!`;
 
-      // Mostra o botão manual se o redirecionamento falhar
-      setTimeout(() => {
-        document.getElementById('btnManual').style.display = 'inline-block';
-      }, 4000);
-    };
+    const $ = (sel) => document.querySelector(sel);
+    const qs = new URLSearchParams(window.location.search);
+
+    // Pré-preenchimento automático
+    function prefill() {
+      const nomeFromUrl = qs.get("nome");
+      const telFromUrl  = qs.get("telefone");
+      const nomeLS = localStorage.getItem("lead_nome");
+      const telLS  = localStorage.getItem("lead_telefone");
+
+      $("#nome").value = nomeFromUrl || nomeLS || "Cliente";
+      $("#telefone").value = telFromUrl || telLS || "62999999999";
+    }
+
+    // Envio ao Google Sheets
+    async function saveLead(payload){
+      try{
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      }catch(e){
+        console.warn("Falha ao salvar no Sheets:", e);
+      }
+    }
+
+    // Abrir WhatsApp
+    function openWhatsApp(nome, telefone){
+      const msg = MESSAGE_TEMPLATE(nome, telefone);
+      const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`;
+      window.location.href = url;
+    }
+
+    // Clique no botão
+    document.getElementById("leadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nome = $("#nome").value.trim() || "Cliente";
+      const telefone = $("#telefone").value.trim() || "62999999999";
+
+      // Salva localmente
+      localStorage.setItem("lead_nome", nome);
+      localStorage.setItem("lead_telefone", telefone);
+
+      // Monta payload
+      const lead = {
+        nome,
+        telefone,
+        utm_source: qs.get("utm_source") || "",
+        utm_medium: qs.get("utm_medium") || "",
+        utm_campaign: qs.get("utm_campaign") || "",
+        referrer: document.referrer || "",
+        userAgent: navigator.userAgent || "",
+        page: location.href,
+        ts: new Date().toISOString()
+      };
+
+      // Salva + abre WhatsApp
+      saveLead(lead);
+      openWhatsApp(nome, telefone);
+    });
+
+    // Executa pré-preenchimento
+    prefill();
   </script>
 </body>
 </html>
