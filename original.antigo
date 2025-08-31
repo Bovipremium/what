@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Result Plus - Ver Preço</title>
   <style>
     body{
@@ -36,7 +36,6 @@
     }
     .btn:hover{ transform: translateY(-1px); filter:brightness(1.05); }
     .note{font-size:.9rem; margin-top:12px; opacity:.9}
-    /* Campo de telefone (acima do título) */
     .campo-telefone{
       margin-bottom: 18px;
     }
@@ -53,17 +52,9 @@
 <body>
   <div class="overlay">
     <form id="leadForm">
-      <!-- Campo opcional ACIMA do título -->
+      <!-- campo opcional -->
       <div class="campo-telefone">
-        <input
-          type="tel"
-          id="telefone"
-          name="telefone"
-          inputmode="numeric"
-          placeholder="Seu número (00) 0 0000-0000 — opcional"
-          aria-label="Seu número (opcional)"
-          pattern="^\(\d{2}\)\s?\d\s?\d{4}-\d{4}$"
-        >
+        <input type="tel" id="telefone" name="telefone" placeholder="Seu número (00) 0 0000-0000 - opcional" maxlength="16">
       </div>
 
       <h1>Result Plus Carrapato, Berne, Verme e Mosca</h1>
@@ -76,38 +67,28 @@
   </div>
 
   <script>
-    const WHATSAPP_PHONE = "5562993463712";
+    const WHATSAPP_PHONE = "5562993463712"; 
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTVpFi2OkZCF7dQXMRa_-9jCoAjUezH42jKK-WOKLD0GLl5hSupkZAbFLxRpCetYQJEA/exec";
     const FIXED_MESSAGE = "Olá, Gostaria de saber mais informações!";
     const qs = new URLSearchParams(window.location.search);
 
-    // Máscara de telefone: (00) 0 0000-0000
-    function maskPhone(value){
-      const digits = value.replace(/\D/g, "").slice(0, 11); // até 11 dígitos
-      const [dd1, dd2, d1, d2, d3, d4, d5, d6, d7, d8, d9] = digits.split("");
-      let out = "";
-      if (dd1) out = `(${dd1}`;
-      if (dd2) out = `(${dd1}${dd2}) `;
-      if (d1)  out += `${d1}`;
-      if (d2)  out += ` ${d2}`;
-      if (d3)  out += `${d3}`;
-      if (d4)  out += `${d4}`;
-      if (d5)  out += `${d5}`;
-      if (d6)  out += `-${d6}`;
-      if (d7)  out += `${d7}`;
-      if (d8)  out += `${d8}`;
-      if (d9)  out += `${d9}`;
-      return out;
-    }
+    // máscara simples
+    document.getElementById("telefone").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, ""); // só números
+      if(value.length > 11) value = value.slice(0, 11);
 
-    // Normaliza para apenas dígitos (para salvar)
-    function onlyDigitsPhone(masked){
-      return masked.replace(/\D/g, "");
-    }
+      if(value.length > 2 && value.length <= 7){
+        value = `(${value.slice(0,2)}) ${value.slice(2)}`;
+      } else if(value.length > 7 && value.length <= 11){
+        value = `(${value.slice(0,2)}) ${value.slice(2,3)} ${value.slice(3,7)}-${value.slice(7)}`;
+      } else if(value.length > 0 && value.length <= 2){
+        value = `(${value}`;
+      }
+      e.target.value = value;
+    });
 
-    // Pré-preenche se já tiver salvo
     function prefill() {
-      const telLS  = localStorage.getItem("lead_telefone_masked");
+      const telLS  = localStorage.getItem("lead_telefone");
       if(telLS) document.getElementById("telefone").value = telLS;
     }
 
@@ -127,38 +108,16 @@
       window.location.href = url;
     }
 
-    // Aplica máscara ao digitar
-    const telInput = document.getElementById("telefone");
-    telInput.addEventListener("input", () => {
-      const pos = telInput.selectionStart;
-      const masked = maskPhone(telInput.value);
-      telInput.value = masked;
-      // tentativa simples de manter o cursor próximo
-      telInput.selectionStart = telInput.selectionEnd = pos;
-    });
-
     document.getElementById("leadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const telefoneMasked = telInput.value.trim();
-      const telefoneDigits = onlyDigitsPhone(telefoneMasked); // só números
-      const nome = "Cliente"; // mantém compatível com sua planilha
-
-      // salva se usuário preencheu algo
-      if(telefoneDigits) {
-        localStorage.setItem("lead_telefone_masked", telefoneMasked);
-        localStorage.setItem("lead_telefone_digits", telefoneDigits);
-      }
+      const telefone = document.getElementById("telefone").value.trim();
+      if(telefone) localStorage.setItem("lead_telefone", telefone);
 
       const lead = {
-        nome,
-        telefone: telefoneMasked || "",
-        telefone_digits: telefoneDigits || "",
+        telefone: telefone || "",
         utm_source: qs.get("utm_source") || "",
         utm_medium: qs.get("utm_medium") || "",
         utm_campaign: qs.get("utm_campaign") || "",
-        referrer: document.referrer || "",
-        userAgent: navigator.userAgent || "",
         page: location.href,
         ts: new Date().toISOString()
       };
